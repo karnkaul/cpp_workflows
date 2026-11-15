@@ -6,6 +6,9 @@ on:
         type: string
         default: '.'
         required: false
+      install:
+        type: string
+        required: false
 jobs:
   build-and-test:
     strategy:
@@ -27,6 +30,7 @@ jobs:
             wget https://apt.llvm.org/llvm.sh
             chmod +x llvm.sh
             sudo ./llvm.sh 23
+            [ ! -z ${{ inputs.install }} ] && sudo apt install ${{ inputs.install }}
             sudo update-alternatives --remove-all clang
             sudo update-alternatives --remove-all clang++
             sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 10
