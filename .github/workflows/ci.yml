@@ -1,0 +1,7 @@
+name: ci-pr
+on: [pull_request, workflow_dispatch]
+jobs:
+  modules-ci:
+    uses: ./.github/workflows/modules_ci.yml
+    with:
+      source: modules
