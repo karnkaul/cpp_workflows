@@ -9,3 +9,4 @@ jobs:
     uses: ./.github/workflows/general_ci.yml
     with:
       source: general
+      install: extra-cmake-modules wayland-protocols

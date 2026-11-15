@@ -39,7 +39,10 @@ jobs:
       - name: init
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: |
-          [ ! -z ${{ inputs.install }} ] && sudo apt install ${{ inputs.install }}
+          if [[ ! -z "${{ inputs.install }}" ]]; then
+            sudo apt update -yq
+            sudo apt install -yq ${{ inputs.install }}
+          fi
           sudo update-alternatives --remove-all clang
           sudo update-alternatives --remove-all clang++
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10
