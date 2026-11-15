@@ -1,0 +1,44 @@
+name: modules-ci
+on:
+  workflow_call:
+    inputs:
+      source:
+        type: string
+        default: '.'
+        required: false
+jobs:
+  build-and-test:
+    continue-on-error: true
+    strategy:
+      matrix:
+        platform: [x64-linux, arm64-linux]
+        preset: [ninja-clang]
+        include:
+          - platform: x64-linux
+            os: ubuntu-26.04
+          - platform: arm64-linux
+            os: ubuntu-26.04-arm
+          - preset: ninja-clang
+            build_args: -- -v
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: init
+        run: |
+            wget https://apt.llvm.org/llvm.sh
+            chmod +x llvm.sh
+            sudo ./llvm.sh 23
+            sudo update-alternatives --remove-all clang
+            sudo update-alternatives --remove-all clang++
+            sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 10
+            sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-23 10
+      - name: configure
+        run: cmake -S ${{ inputs.source }} --preset=${{ matrix.preset }} -B build
+      - name: build debug
+        run: cmake --build build --config=Debug ${{ matrix.build_args }}
+      - name: build release
+        run: cmake --build build --config=Release ${{ matrix.build_args }}
+      - name: test debug
+        run: cd build && ctest -V -C Debug
+      - name: test release
+        run: cd build && ctest -V -C Release
