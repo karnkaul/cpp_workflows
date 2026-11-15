@@ -1,0 +1,61 @@
+name: general-ci
+on:
+  workflow_call:
+    inputs:
+      source:
+        type: string
+        default: '.'
+        required: false
+      install:
+        type: string
+        required: false
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        platform: [x64-linux, arm64-linux, x64-windows]
+        preset: [ninja-gcc, ninja-clang, vs26]
+        exclude:
+          - platform: x64-linux
+            preset: vs26
+          - platform: arm64-linux
+            preset: vs26
+        include:
+          - platform: x64-linux
+            os: ubuntu-26.04
+          - platform: arm64-linux
+            os: ubuntu-26.04-arm
+          - platform: x64-windows
+            os: windows-latest
+          - preset: vs26
+            build_args: --parallel
+          - preset: ninja-gcc
+            build_args: -- -v
+          - preset: ninja-clang
+            build_args: -- -v
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: init
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: |
+          if [[ ! -z "${{ inputs.install }}" ]]; then
+            sudo apt update -yq
+            sudo apt install -yq ${{ inputs.install }}
+          fi
+          sudo update-alternatives --remove-all clang
+          sudo update-alternatives --remove-all clang++
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 10
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-15 10
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-22 10
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-22 10
+      - name: configure
+        run: cmake -S ${{ inputs.source }} --preset=${{ matrix.preset }} -B build
+      - name: build debug
+        run: cmake --build build --config=Debug ${{ matrix.build_args }}
+      - name: build release
+        run: cmake --build build --config=Release ${{ matrix.build_args }}
+      - name: test debug
+        run: cd build && ctest -V -C Debug
+      - name: test release
+        run: cd build && ctest -V -C Release

@@ -30,7 +30,7 @@ jobs:
             wget https://apt.llvm.org/llvm.sh
             chmod +x llvm.sh
             sudo ./llvm.sh 23
-            [ ! -z ${{ inputs.install }} ] && sudo apt install ${{ inputs.install }}
+            [ ! -z "${{ inputs.install }}" ] && sudo apt install -yq ${{ inputs.install }}
             sudo update-alternatives --remove-all clang
             sudo update-alternatives --remove-all clang++
             sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 10
