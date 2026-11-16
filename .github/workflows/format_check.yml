@@ -1,0 +1,29 @@
+name: format-check
+on:
+  workflow_call:
+    inputs:
+      script:
+        type: string
+        required: true
+jobs:
+  format-check:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: init
+        run: |
+          sudo update-alternatives --remove-all clang-format
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-22 10
+      - name: format code
+        run: |
+          chmod +x ${{ inputs.script }}
+          ./${{ inputs.script }}
+      - name: check diff
+        run: |
+          output=$(git diff)
+          if [[ "$output" != "" ]]; then
+            echo -e "One or more source files are not formatted!\n\n$output\n"
+            echo -e "Using $(clang-format --version)\n"
+            exit 1
+          fi
+          echo "All source files are formatted"
