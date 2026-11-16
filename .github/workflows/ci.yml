@@ -10,3 +10,7 @@ jobs:
     with:
       source: general
       install: extra-cmake-modules wayland-protocols
+  format-check:
+    uses: ./.github/workflows/format_check.yml
+    with:
+      script: scripts/format_code.sh
