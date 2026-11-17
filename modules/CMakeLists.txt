@@ -12,6 +12,10 @@ set(CMAKE_DEBUG_POSTFIX "-d")
 
 project(modules)
 
+option(MODULES_TEST "Test option" OFF)
+
+message(STATUS "MODULES_TEST set to: ${MODULES_TEST}")
+
 add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE FILE_SET CXX_MODULES

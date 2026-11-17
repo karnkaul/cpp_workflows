@@ -9,6 +9,9 @@ on:
       install:
         type: string
         required: false
+      configure_args:
+        type: string
+        required: false
 jobs:
   build-and-test:
     strategy:
@@ -36,7 +39,7 @@ jobs:
             sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 10
             sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-23 10
       - name: configure
-        run: cmake -S ${{ inputs.source }} --preset=${{ matrix.preset }} -B build
+        run: cmake -S ${{ inputs.source }} --preset=${{ matrix.preset }} -B build ${{ inputs.configure_args }}
       - name: build debug
         run: cmake --build build --config=Debug ${{ matrix.build_args }}
       - name: build release

@@ -5,6 +5,7 @@ jobs:
     uses: ./.github/workflows/modules_ci.yml
     with:
       source: modules
+      configure_args: -DMODULES_TEST=ON
   general-ci:
     uses: ./.github/workflows/general_ci.yml
     with:
